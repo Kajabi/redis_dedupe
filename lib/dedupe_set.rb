@@ -1,4 +1,4 @@
-require "dedupe_set/version"
+require 'dedupe_set/version'
 
 class DedupeSet
   attr_reader :key, :expires_in
