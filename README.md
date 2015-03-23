@@ -1,4 +1,4 @@
-# DedupeSet
+# RedisDedupe
 
 This is a weak deduper to make things like bulk email run safer. It is not a lock safe for financial/security needs because it uses a weak redis locking pattern that can have race conditions.
 
@@ -8,7 +8,7 @@ However, imagine a bulk email job that loops over 100 users, and enqueues a back
 
 Add this line to your application's Gemfile:
 
-    gem 'dedupe_set'
+    gem 'redis_dedupe'
 
 And then execute:
 
@@ -16,13 +16,13 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install dedupe_set
+    $ gem install redis_dedupe
 
 ## Usage
 
 ```ruby
 comment_id = 42
-dedupe = DedupeSet.new($redis, "comment:42:notification")
+dedupe = RedisDedupe.new($redis, "comment:42:notification")
 
 users.each do |user|
   dedupe.check(user.id) do
@@ -33,7 +33,7 @@ end
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/dedupe_set/fork )
+1. Fork it ( https://github.com/[my-github-username]/redis_dedupe/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

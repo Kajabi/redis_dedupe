@@ -1,9 +1,11 @@
-require 'dedupe_set/version'
+require 'redis_dedupe/version'
 
-class DedupeSet
+class RedisDedupe
+  SEVEN_DAYS = 7 * 24 * 60 * 60
+
   attr_reader :key, :expires_in
 
-  def initialize(redis, key, expires_in = (Time.now + (2*7*24*60*60)))
+  def initialize(redis, key, expires_in = Time.now + SEVEN_DAYS)
     @redis      = redis
     @key        = key
     @expires_in = expires_in
@@ -11,8 +13,8 @@ class DedupeSet
 
   def check(member)
     results = redis.pipelined do
-      redis.sadd key, member
-      redis.expire key, expires_in
+      redis.sadd(key, member)
+      redis.expire(key, expires_in)
     end
 
     if results[0]
@@ -21,7 +23,7 @@ class DedupeSet
   end
 
   def finish
-    redis.del key
+    redis.del(key)
   end
 
   private

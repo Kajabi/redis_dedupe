@@ -1,28 +1,28 @@
-require 'spec_helper'
-require 'dedupe_set'
+require 'redis_dedupe'
 require 'mock_redis'
+require 'spec_helper'
 
-describe DedupeSet do
+describe RedisDedupe do
   it "is initialized with a redis client and key" do
-    dedupe = DedupeSet.new(:redis, :key)
+    dedupe = RedisDedupe.new(:redis, :key)
     expect(dedupe.key).to eq(:key)
   end
 
-  xit "defaults expires_in to 7.days" do
-    dedupe = DedupeSet.new(:redis, :key)
-    expect(dedupe.expires_in).to be(Time.now + (2*7*24*60*60))
+  it "defaults expires_in to 7 days" do
+    dedupe = RedisDedupe.new(:redis, :key)
+    expect(dedupe.expires_in.to_i).to eq((Time.now + (7*24*60*60)).to_i)
   end
 
-  xit "optionally receives an expires_in time" do
-    dedupe = DedupeSet.new(:redis, :key, (Time.now + 2*7*24*60))
-    expect(dedupe.expires_in).to eq((Time.now + 2*7*24*60))
+  it "optionally receives an expires_in time" do
+    dedupe = RedisDedupe.new(:redis, :key, (Time.now + (7*24*60)).to_i)
+    expect(dedupe.expires_in.to_i).to eq((Time.now + (7*24*60)).to_i)
   end
 end
 
-describe DedupeSet, "#check" do
+describe RedisDedupe, "#check" do
   it "prevents a block from yielding multiple times for the same member" do
-    dedupe1 = DedupeSet.new(MockRedis.new, 'spec_key:1')
-    dedupe2 = DedupeSet.new(MockRedis.new, 'spec_key:2')
+    dedupe1 = RedisDedupe.new(MockRedis.new, 'spec_key:1')
+    dedupe2 = RedisDedupe.new(MockRedis.new, 'spec_key:2')
 
     @results = []
 
@@ -35,7 +35,7 @@ describe DedupeSet, "#check" do
 
   it "sets the set to expire so it cleans up if the process never completes" do
     redis  = MockRedis.new
-    dedupe = DedupeSet.new(redis, 'spec_key:1', 10)
+    dedupe = RedisDedupe.new(redis, 'spec_key:1', 10)
 
     dedupe.check('1') {  }
 
@@ -43,10 +43,10 @@ describe DedupeSet, "#check" do
   end
 end
 
-describe DedupeSet, "#finish" do
+describe RedisDedupe, "#finish" do
   it "removes the set to free up memory" do
     redis  = MockRedis.new
-    dedupe = DedupeSet.new(redis, 'spec_key:1')
+    dedupe = RedisDedupe.new(redis, 'spec_key:1')
 
     dedupe.check('1') {  }
     dedupe.finish

@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'dedupe_set/version'
+require 'redis_dedupe/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "dedupe_set"
-  spec.version       = DedupeSet::VERSION
+  spec.name          = "redis_dedupe"
+  spec.version       = RedisDedupe::VERSION
   spec.authors       = ["Andy Huynh"]
   spec.email         = ["andy4thehuynh@gmail.com"]
   spec.summary       = %q{ A weak deduper to make things like bulk email run safer. }
@@ -15,10 +15,7 @@ Gem::Specification.new do |spec|
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  # spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
-
-  # spec.add_dependency "activesupport"
 
   spec.add_development_dependency "bundler", "~> 1.6"
   spec.add_development_dependency "rake"

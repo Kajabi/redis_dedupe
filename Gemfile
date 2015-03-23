@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in dedupe_set.gemspec
+# Specify your gem's dependencies in redis_dedupe.gemspec
 gemspec
