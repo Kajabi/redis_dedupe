@@ -1,3 +1,3 @@
-class RedisDedupe
-  VERSION = "0.0.1"
+module RedisDedupe
+  VERSION = "0.0.2"
 end

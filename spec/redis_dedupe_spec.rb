@@ -2,27 +2,27 @@ require 'redis_dedupe'
 require 'mock_redis'
 require 'spec_helper'
 
-describe RedisDedupe do
+describe RedisDedupe::Set do
   it "is initialized with a redis client and key" do
-    dedupe = RedisDedupe.new(:redis, :key)
+    dedupe = RedisDedupe::Set.new(:redis, :key)
     expect(dedupe.key).to eq(:key)
   end
 
   it "defaults expires_in to 7 days" do
-    dedupe = RedisDedupe.new(:redis, :key)
+    dedupe = RedisDedupe::Set.new(:redis, :key)
     expect(dedupe.expires_in.to_i).to eq((Time.now + (7*24*60*60)).to_i)
   end
 
   it "optionally receives an expires_in time" do
-    dedupe = RedisDedupe.new(:redis, :key, (Time.now + (7*24*60)).to_i)
+    dedupe = RedisDedupe::Set.new(:redis, :key, (Time.now + (7*24*60)).to_i)
     expect(dedupe.expires_in.to_i).to eq((Time.now + (7*24*60)).to_i)
   end
 end
 
-describe RedisDedupe, "#check" do
+describe RedisDedupe::Set, "#check" do
   it "prevents a block from yielding multiple times for the same member" do
-    dedupe1 = RedisDedupe.new(MockRedis.new, 'spec_key:1')
-    dedupe2 = RedisDedupe.new(MockRedis.new, 'spec_key:2')
+    dedupe1 = RedisDedupe::Set.new(MockRedis.new, 'spec_key:1')
+    dedupe2 = RedisDedupe::Set.new(MockRedis.new, 'spec_key:2')
 
     @results = []
 
@@ -35,7 +35,7 @@ describe RedisDedupe, "#check" do
 
   it "sets the set to expire so it cleans up if the process never completes" do
     redis  = MockRedis.new
-    dedupe = RedisDedupe.new(redis, 'spec_key:1', 10)
+    dedupe = RedisDedupe::Set.new(redis, 'spec_key:1', 10)
 
     dedupe.check('1') {  }
 
@@ -43,10 +43,10 @@ describe RedisDedupe, "#check" do
   end
 end
 
-describe RedisDedupe, "#finish" do
+describe RedisDedupe::Set, "#finish" do
   it "removes the set to free up memory" do
     redis  = MockRedis.new
-    dedupe = RedisDedupe.new(redis, 'spec_key:1')
+    dedupe = RedisDedupe::Set.new(redis, 'spec_key:1')
 
     dedupe.check('1') {  }
     dedupe.finish

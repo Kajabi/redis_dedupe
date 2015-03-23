@@ -22,7 +22,7 @@ Or install it yourself as:
 
 ```ruby
 comment_id = 42
-dedupe = RedisDedupe.new($redis, "comment:42:notification")
+dedupe = RedisDedupe::Set.new($redis, "comment:42:notification")
 
 users.each do |user|
   dedupe.check(user.id) do
