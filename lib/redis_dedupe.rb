@@ -10,7 +10,7 @@ module RedisDedupe
 
     attr_reader :key, :expires_in
 
-    def initialize(redis, key, expires_in = Time.now + SEVEN_DAYS)
+    def initialize(redis, key, expires_in = SEVEN_DAYS)
       @redis      = redis
       @key        = key
       @expires_in = expires_in

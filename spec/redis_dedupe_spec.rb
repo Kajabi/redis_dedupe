@@ -10,12 +10,12 @@ describe RedisDedupe::Set do
 
   it "defaults expires_in to 7 days" do
     dedupe = RedisDedupe::Set.new(:redis, :key)
-    expect(dedupe.expires_in.to_i).to eq((Time.now + (7*24*60*60)).to_i)
+    expect(dedupe.expires_in.to_i).to eq(7 * 24 * 60 * 60)
   end
 
-  it "optionally receives an expires_in time" do
-    dedupe = RedisDedupe::Set.new(:redis, :key, (Time.now + (7*24*60)).to_i)
-    expect(dedupe.expires_in.to_i).to eq((Time.now + (7*24*60)).to_i)
+  it "optionally receives an expires_in seconds value" do
+    dedupe = RedisDedupe::Set.new(:redis, :key, 60)
+    expect(dedupe.expires_in.to_i).to eq(60)
   end
 end
 
