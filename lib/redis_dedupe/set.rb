@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# :nodoc:
 module RedisDedupe
   class << self
     attr_accessor :client
@@ -27,7 +28,7 @@ module RedisDedupe
   #   dedupe.finish
   #   ```
   #
-   class Set
+  class Set
     SEVEN_DAYS = 7 * 24 * 60 * 60
 
     attr_reader :key, :expires_in
@@ -48,12 +49,7 @@ module RedisDedupe
     # @return `nil` if the block was not run, otherwise the result of the yielded block
     #
     def check(member)
-      results = redis.pipelined do
-        redis.sadd(key, member)
-        redis.expire(key, expires_in)
-      end
-
-      return nil unless block_given? && results[0] # `results` will be `[true]` or `[false]`
+      return unless execute_block_for_member?(member)
 
       # If it didn't get processed... we can retry it again
       # Unless it it's an error that's ALWAYS going to occur, in which case we might not want to do this.
@@ -61,7 +57,7 @@ module RedisDedupe
       # But as long as the calling code doesn't error in the yielded block, all should be fine.
       begin
         yield
-      rescue => e
+      rescue StandardError => e
         redis.del(key, member)
         raise e
       end
@@ -94,8 +90,15 @@ module RedisDedupe
 
     private
 
-    def redis
-      @redis
+    attr_reader :redis
+
+    def execute_block_for_member?(member)
+      results = redis.pipelined do
+        redis.sadd(key, member)
+        redis.expire(key, expires_in)
+      end
+
+      block_given? && results[0] # `results` will be `[true]` or `[false]`
     end
   end
 end

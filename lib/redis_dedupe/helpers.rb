@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# :nodoc:
 module RedisDedupe
   #
   # Include `RedisDedupe::Helpers` to use +RedisDedupe::Set+
