@@ -91,4 +91,34 @@ RSpec.describe RedisDedupe::Set do
       expect(redis.exists?(key)).to eq(false)
     end
   end
+
+  describe "#max_member" do
+    subject { dedupe.max_member }
+
+    let(:dedupe) { described_class.new(redis, key) }
+
+    context "when member is input as an integer" do
+      before do
+        dedupe.check(3)
+        dedupe.check(5)
+        dedupe.check(4)
+        dedupe.check(2)
+        dedupe.check(1)
+      end
+
+      it { is_expected.to eq("5") }
+    end
+
+    context "when member is input as a string representation of an integer" do
+      before do
+        dedupe.check("3")
+        dedupe.check("5")
+        dedupe.check("4")
+        dedupe.check("2")
+        dedupe.check("1")
+      end
+
+      it { is_expected.to eq("5") }
+    end
+  end
 end

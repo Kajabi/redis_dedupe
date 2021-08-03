@@ -60,6 +60,27 @@ module RedisDedupe
       redis.del(key)
     end
 
+    # Retrieves the member in the set with the largest value.
+    #
+    # This will work on String and Integers, but really meant for Integer
+    # If used for String, make sure it's really doing what you want and expect
+    #
+    # @example with Integers
+    # redis.smembers("foo") => [1, 2, 3, 4, 5]
+    # max_member => 5
+    #
+    # @example with String
+    # redis.smembers("foo") => ["abc", "xyz", "lmn"]
+    # max_member => "xyz"
+    #
+    # @see Array#max
+    #
+    # @return [Integer, String] the member in the set with the largest value
+    #
+    def max_member
+      redis.smembers(key).max
+    end
+
     private
 
     def redis
