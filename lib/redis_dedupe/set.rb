@@ -41,6 +41,8 @@ module RedisDedupe
     # Ensures that a block of code will only be run if the +member+ is not already contained in Redis.
     # ie: the code block has not already run for the specified +member+.
     #
+    # Note that if the given block raises an error, the +member+ will not remain in the +Set+ and may be tried again.
+    #
     # @param [String, Integer] member identifiying value to make sure the given block only runs once
     #
     # @return `nil` if the block was not run, otherwise the result of the yielded block
@@ -53,7 +55,16 @@ module RedisDedupe
 
       return nil unless block_given? && results[0] # `results` will be `[true]` or `[false]`
 
-      yield
+      # If it didn't get processed... we can retry it again
+      # Unless it it's an error that's ALWAYS going to occur, in which case we might not want to do this.
+      # Should we track/handle this differently?
+      # But as long as the calling code doesn't error in the yielded block, all should be fine.
+      begin
+        yield
+      rescue => e
+        redis.del(key, member)
+        raise e
+      end
     end
 
     def finish

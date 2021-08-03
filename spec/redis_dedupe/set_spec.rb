@@ -74,9 +74,9 @@ RSpec.describe RedisDedupe::Set do
         end
       end
 
-      it "does not remove the member from Redis and re-raises the error" do
+      it "removes the member from Redis and re-raises the error" do
         expect { subject }.to raise_error(RuntimeError, "foobar")
-        expect(redis.smembers(key)).to include(member.to_s)
+        expect(redis.smembers(key)).not_to include(member)
       end
     end
   end
