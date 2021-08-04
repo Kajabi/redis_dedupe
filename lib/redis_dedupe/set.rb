@@ -46,17 +46,16 @@ module RedisDedupe
     #
     # @param [String, Integer] member identifiying value to make sure the given block only runs once
     #
+    # @yield block to run for the specified +member+, which should only be run once for any particular member
+    #
     # @return `nil` if the block was not run, otherwise the result of the yielded block
     #
-    def check(member)
-      return unless execute_block_for_member?(member)
+    def check(member, &block)
+      raise ArgumentError, "passing a block is required" if block.nil?
+      return nil unless execute_block_for_member?(member)
 
-      # If it didn't get processed... we can retry it again
-      # Unless it it's an error that's ALWAYS going to occur, in which case we might not want to do this.
-      # Should we track/handle this differently?
-      # But as long as the calling code doesn't error in the yielded block, all should be fine.
       begin
-        yield
+        block.call
       rescue StandardError => e
         redis.del(key, member)
         raise e
@@ -98,7 +97,7 @@ module RedisDedupe
         redis.expire(key, expires_in)
       end
 
-      block_given? && results[0] # `results` will be `[true]` or `[false]`
+      results[0] # `results` will be `[true]` or `[false]`
     end
   end
 end

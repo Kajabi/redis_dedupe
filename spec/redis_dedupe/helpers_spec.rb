@@ -16,7 +16,7 @@ RSpec.describe RedisDedupe::Helpers do
   describe "#dedupe" do
     subject { instance.test_call }
 
-    it { expect { subject }.to change(instance, :counter).from(0).to(2) }
+    it { expect(subject).to eq(2) }
 
     it "uses the correct redis key" do
       subject
@@ -29,16 +29,14 @@ end
 class RedisDedupeSpecStubbedClass
   include RedisDedupe::Helpers
 
-  attr_reader :counter
-
-  def initialize
-    @counter = 0
-  end
-
   def test_call
-    dedupe.check(5) { @counter += 1 }
-    dedupe.check(5) { @counter += 1 }
-    dedupe.check(7) { @counter += 1 }
+    counter = 0
+
+    dedupe.check(5) { counter += 1 }
+    dedupe.check(5) { counter += 1 }
+    dedupe.check(7) { counter += 1 }
+
+    counter
   end
 
   def dedupe_id

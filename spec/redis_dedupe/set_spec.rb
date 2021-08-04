@@ -41,6 +41,14 @@ RSpec.describe RedisDedupe::Set do
     let(:dedupe3) { described_class.new(redis, "Another::Strange::Key") }
     let(:results) { [] }
 
+    context "when no block is given" do
+      it { expect { dedupe1.check(member) }.to raise_error(ArgumentError, "passing a block is required") }
+    end
+
+    context "when an empty block is given" do
+      it { expect(dedupe1.check(member) {}).to eq(nil) }
+    end
+
     context "when calling multiple times for the same member" do
       before do
         dedupe1.check(member) { results << "A" }
@@ -62,7 +70,7 @@ RSpec.describe RedisDedupe::Set do
 
       it "resets the redis ttl" do
         expect(redis.ttl(key)).to be_within(1).of(10) # 120 - 110 => 10
-        dedupe1.check("another_member")
+        dedupe1.check("another_member") {}
         expect(redis.ttl(key)).to be_within(1).of(120)
       end
     end
@@ -85,7 +93,7 @@ RSpec.describe RedisDedupe::Set do
     let(:dedupe) { described_class.new(redis, key) }
 
     it "removes the entire set for the specified key" do
-      dedupe.check(member)
+      dedupe.check(member) {}
       expect(redis.exists?(key)).to eq(true)
       dedupe.finish
       expect(redis.exists?(key)).to eq(false)
@@ -99,11 +107,11 @@ RSpec.describe RedisDedupe::Set do
 
     context "when member is input as an integer" do
       before do
-        dedupe.check(3)
-        dedupe.check(5)
-        dedupe.check(4)
-        dedupe.check(2)
-        dedupe.check(1)
+        dedupe.check(3) {}
+        dedupe.check(5) {}
+        dedupe.check(4) {}
+        dedupe.check(2) {}
+        dedupe.check(1) {}
       end
 
       it { is_expected.to eq("5") }
@@ -111,11 +119,11 @@ RSpec.describe RedisDedupe::Set do
 
     context "when member is input as a string representation of an integer" do
       before do
-        dedupe.check("3")
-        dedupe.check("5")
-        dedupe.check("4")
-        dedupe.check("2")
-        dedupe.check("1")
+        dedupe.check("3") {}
+        dedupe.check("5") {}
+        dedupe.check("4") {}
+        dedupe.check("2") {}
+        dedupe.check("1") {}
       end
 
       it { is_expected.to eq("5") }
