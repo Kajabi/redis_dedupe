@@ -57,7 +57,7 @@ module RedisDedupe
       begin
         block.call
       rescue StandardError => e
-        redis.del(key, member)
+        redis.srem(key, member)
         raise e
       end
     end

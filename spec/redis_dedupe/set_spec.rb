@@ -77,14 +77,14 @@ RSpec.describe RedisDedupe::Set do
 
     context "when the yielded block raises an error" do
       subject do
-        dedupe1.check(member) do
-          raise "foobar"
-        end
+        dedupe1.check("a") {}
+        dedupe1.check("b") {}
+        dedupe1.check("c") { raise "foobar" }
       end
 
       it "removes the member from Redis and re-raises the error" do
         expect { subject }.to raise_error(RuntimeError, "foobar")
-        expect(redis.smembers(key)).not_to include(member)
+        expect(redis.smembers(key)).to match_array(%w[a b])
       end
     end
   end
