@@ -28,7 +28,7 @@ module RedisDedupe
     end
 
     def finish
-      redis.del(key)
+      redis.unlink(key)
     end
 
     private
