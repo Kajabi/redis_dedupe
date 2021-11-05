@@ -51,6 +51,6 @@ describe RedisDedupe::Set, "#finish" do
     dedupe.check('1') {  }
     dedupe.finish
 
-    expect(redis.exists 'spec_key:1').to be(false)
+    expect(redis.exists 'spec_key:1').to be(0)
   end
 end
