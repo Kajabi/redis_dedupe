@@ -11,7 +11,7 @@ metadata:
     - redis
     - dedupe
   annotations:
-    backstage.io/source-location: url:https://github.com/Kajabi/redis_dedupe/tree/main
+    backstage.io/source-location: url:https://github.com/Kajabi/redis_dedupe/tree/master
     github.com/project-slug: Kajabi/redis_dedupe
 spec:
   system: kajabi-products
