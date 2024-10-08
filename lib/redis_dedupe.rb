@@ -18,7 +18,7 @@ module RedisDedupe
 
     def check(member)
       results = redis.pipelined do |pipeline|
-        pipeline.sadd(key, member)
+        pipeline.sadd?(key, member)
         pipeline.expire(key, expires_in)
       end
 
