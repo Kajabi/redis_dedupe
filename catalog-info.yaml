@@ -16,5 +16,5 @@ metadata:
 spec:
   system: kajabi-products
   type: gem
-  owner: standard-model
+  owner: production-engineering
   lifecycle: production
