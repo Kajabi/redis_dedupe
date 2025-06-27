@@ -54,3 +54,65 @@ describe RedisDedupe::Set, "#finish" do
     expect(redis.exists 'spec_key:1').to be(0)
   end
 end
+
+describe RedisDedupe::Helpers do
+  let(:receiver_class) do
+    Class.new do
+      include RedisDedupe::Helpers
+
+      def self.name
+        "ReceiverClass"
+      end
+
+      def call
+        dedupe
+      end
+
+      private
+
+      def dedupe_id
+        "spec_key:1"
+      end
+    end
+  end
+
+  it "builds a Set" do
+    dedupe = receiver_class.new.call
+
+    expect(dedupe.key).to eq("ReceiverClass:spec_key:1")
+    expect(dedupe.expires_in.to_i).to eq(RedisDedupe::Set::DEFAULT_EXPIRES_IN)
+  end
+
+  context "given an overridden expires in value" do
+    let(:receiver_class) do
+      Class.new do
+        include RedisDedupe::Helpers
+
+        def self.name
+          "ReceiverClass"
+        end
+
+        def call
+          dedupe
+        end
+
+        private
+
+        def dedupe_id
+          "spec_key:1"
+        end
+
+        def dedupe_expires_in
+          24 * 60 * 60 # => 1 day
+        end
+      end
+    end
+
+    it "builds a Set" do
+      dedupe = receiver_class.new.call
+
+      expect(dedupe.key).to eq("ReceiverClass:spec_key:1")
+      expect(dedupe.expires_in.to_i).to eq(24 * 60 * 60)
+    end
+  end
+end
